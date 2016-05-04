@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-// import NodesChart from '../charts/nodes-chart';
+import NodesChart from '../charts/nodes-chart';
 import NodesGrid from '../charts/nodes-grid';
 import NodesError from '../charts/nodes-error';
 import { isTopologyEmpty } from '../utils/topology-utils';
@@ -9,7 +9,6 @@ import { CANVAS_MARGINS } from '../constants/styles';
 
 const navbarHeight = 160;
 const marginTop = 0;
-const detailsWidth = 450;
 
 /**
  * dynamic coords precision based on topology size
@@ -65,23 +64,25 @@ class Nodes extends React.Component {
   }
 
   render() {
-    const { nodes, selectedNodeId, topologyEmpty } = this.props;
+    const { nodes, topologyEmpty, highlightedNodeIds } = this.props;
     const layoutPrecision = getLayoutPrecision(nodes.size);
-    const hasSelectedNode = selectedNodeId && nodes.has(selectedNodeId);
     const errorEmpty = this.renderEmptyTopologyError(topologyEmpty);
 
     return (
       <div className="nodes-wrapper">
         {topologyEmpty && errorEmpty}
-        <NodesGrid {...this.state}
-          nodeSize="24"
-          width={1300}
-          height={780}
-          margins={CANVAS_MARGINS}
-          detailsWidth={detailsWidth}
-          layoutPrecision={layoutPrecision}
-          hasSelectedNode={hasSelectedNode}
-        />
+        {this.props.gridMode ?
+          <NodesGrid {...this.state}
+            nodeSize="24"
+            nodes={nodes}
+            margins={CANVAS_MARGINS}
+            layoutPrecision={layoutPrecision}
+            highlightedNodeIds={highlightedNodeIds}
+          /> :
+         <NodesChart {...this.state}
+           margins={CANVAS_MARGINS}
+           layoutPrecision={layoutPrecision}
+           />}
       </div>
     );
   }
@@ -100,9 +101,10 @@ class Nodes extends React.Component {
 
 function mapStateToProps(state) {
   return {
+    gridMode: state.get('gridMode'),
     nodes: state.get('nodes'),
-    selectedNodeId: state.get('selectedNodeId'),
     topologyEmpty: isTopologyEmpty(state),
+    highlightedNodeIds: state.get('highlightedNodeIds')
   };
 }
 

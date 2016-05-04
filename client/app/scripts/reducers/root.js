@@ -28,6 +28,7 @@ export const initialState = makeMap({
   currentTopologyId: 'containers',
   errorUrl: null,
   forceRelayout: false,
+  gridMode: false,
   highlightedEdgeIds: makeSet(),
   highlightedNodeIds: makeSet(),
   hostname: '...',
@@ -163,6 +164,10 @@ export function rootReducer(state = initialState, action) {
 
     case ActionTypes.SET_EXPORTING_GRAPH: {
       return state.set('exportingGraph', action.exporting);
+    }
+
+    case ActionTypes.SET_GRID_MODE: {
+      return state.setIn(['gridMode'], action.enabled);
     }
 
     case ActionTypes.CLEAR_CONTROL_ERROR: {
@@ -620,6 +625,7 @@ export function rootReducer(state = initialState, action) {
         selectedNodeId: action.state.selectedNodeId,
         pinnedMetricType: action.state.pinnedMetricType
       });
+      state = state.set('gridMode', action.state.mode === 'grid');
       if (action.state.showingNetworks) {
         state = state.set('showingNetworks', action.state.showingNetworks);
       }
