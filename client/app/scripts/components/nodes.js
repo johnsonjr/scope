@@ -7,7 +7,7 @@ import NodesError from '../charts/nodes-error';
 import { isTopologyEmpty } from '../utils/topology-utils';
 import { CANVAS_MARGINS } from '../constants/styles';
 
-const navbarHeight = 160;
+const navbarHeight = 194;
 const marginTop = 0;
 
 /**
@@ -64,22 +64,30 @@ class Nodes extends React.Component {
   }
 
   render() {
-    const { nodes, topologyEmpty, highlightedNodeIds } = this.props;
+    const { nodes, topologyEmpty, selectedNodeId, gridMode, gridSortBy,
+      gridSortedDesc, searchNodeMatches, searchQuery } = this.props;
     const layoutPrecision = getLayoutPrecision(nodes.size);
     const errorEmpty = this.renderEmptyTopologyError(topologyEmpty);
 
     return (
       <div className="nodes-wrapper">
         {topologyEmpty && errorEmpty}
-        {this.props.gridMode ?
+        {gridMode ?
           <NodesGrid {...this.state}
             nodeSize="24"
             nodes={nodes}
+            topology={this.props.currentTopology}
+            topologyId={this.props.currentTopologyId}
             margins={CANVAS_MARGINS}
             layoutPrecision={layoutPrecision}
-            highlightedNodeIds={highlightedNodeIds}
+            selectedNodeId={selectedNodeId}
+            gridSortBy={gridSortBy}
+            gridSortedDesc={gridSortedDesc}
+            searchNodeMatches={searchNodeMatches}
+            searchQuery={searchQuery}
           /> :
          <NodesChart {...this.state}
+           nodes={nodes}
            margins={CANVAS_MARGINS}
            layoutPrecision={layoutPrecision}
            />}
@@ -102,9 +110,15 @@ class Nodes extends React.Component {
 function mapStateToProps(state) {
   return {
     gridMode: state.get('gridMode'),
-    nodes: state.get('nodes'),
+    gridSortBy: state.get('gridSortBy'),
+    gridSortedDesc: state.get('gridSortedDesc'),
+    nodes: state.get('nodes').filter(node => !node.get('filtered')),
+    currentTopology: state.get('currentTopology'),
+    currentTopologyId: state.get('currentTopologyId'),
     topologyEmpty: isTopologyEmpty(state),
-    highlightedNodeIds: state.get('highlightedNodeIds')
+    searchNodeMatches: state.getIn(['searchNodeMatches', state.get('currentTopologyId')]),
+    searchQuery: state.get('searchQuery'),
+    selectedNodeId: state.get('selectedNodeId')
   };
 }
 
